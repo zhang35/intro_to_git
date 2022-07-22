@@ -1,0 +1,25 @@
+name: isort-action
+on: [push]
+jobs:
+  sort_import:
+    name: runner / isort
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - uses: isort/isort-action@master
+        id: action_isort
+        with:
+            configuration: "--overwrite-in-place"      
+      - name: Commit changes
+        run: |
+          if [[ "$(git status --porcelain|wc -l)" -gt 0 ]]; then
+            git config --global user.name 'isort-action'
+            git config --global user.email 'isort-action@github.com'
+            git commit -am "Committing isort changes"
+            git push
+          fi
